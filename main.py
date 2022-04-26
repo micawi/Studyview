@@ -4,4 +4,4 @@ import sys;
 
 app = QApplication(sys.argv);
 mainWindow = MainWindow();
-app.exec_(sys.exit);
+app.exec_();
