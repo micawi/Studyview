@@ -106,4 +106,4 @@ class MainWindow(QWidget):
             return;
         else:
             moduleToAdd: str = self.AddGradeLine.text();
-            self.AddGrdWindow = AddGradeWindow(moduleToAdd);
+            self.AddGrdWindow = AddGradeWindow(moduleToAdd, self.Spacing);
