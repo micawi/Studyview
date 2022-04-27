@@ -3,6 +3,8 @@ from PyQt5.QtGui import QFont;
 from PyQt5.QtCore import Qt;
 from gradeplot import GradePlot;
 from gradewindow import GradeWindow;
+from errorwindow import ErrorWindow;
+from addgradewindow import AddGradeWindow;
 
 appVersion: str = "v1.0";
 
@@ -11,6 +13,8 @@ class MainWindow(QWidget):
     XSize: int;
     YSize: int;
     Spacing: int;
+    FontSize: int;
+    Font: str;
 
     # Elements
     AddGradeBtn: QPushButton;
@@ -21,6 +25,12 @@ class MainWindow(QWidget):
     GradeCountLbl: QLabel;
     AvgGradeLbl: QLabel;
     AddGradeLine: QLineEdit;
+
+    # Subwindows
+    ErrWindow: ErrorWindow;
+    AddGrdWindow: AddGradeWindow;
+    GrdWindow: GradeWindow;
+    PlotWindow: GradePlot;
     
     # Init
     def __init__(self):
@@ -29,7 +39,8 @@ class MainWindow(QWidget):
         self.YSize = self.XSize;
         self.Spacing = 60;
         self.FontSize = 14;
-        self.setFont(QFont("Calibri", self.FontSize));
+        self.Font = "Calibri";
+        self.setFont(QFont(self.Font, self.FontSize));
         self.setWindowTitle("StudyView " + appVersion);
         self.setFixedSize(self.XSize, self.YSize);
 
@@ -37,6 +48,7 @@ class MainWindow(QWidget):
         width: int = int(self.AddGradeBtn.width() * self.FontSize / 10);
         halfHeight: int = int(self.AddGradeBtn.height()/2);
         self.AddGradeBtn.move(self.XSize - width, int(self.YSize/3) - halfHeight);
+        self.AddGradeBtn.clicked.connect(self.addGrade);
 
         self.ShowGradeBtn = QPushButton("SHOW GRADES", self);
         halfHeight = int(self.ShowGradeBtn.height()/2);
@@ -48,7 +60,7 @@ class MainWindow(QWidget):
 
         self.VersionLbl = QLabel(self);
         self.VersionLbl.setText("StudyView " + appVersion);
-        self.VersionLbl.setFont(QFont("Calibri", 18, 1, True));
+        self.VersionLbl.setFont(QFont(self.Font, 18, 1, True));
         halfWidth = int(self.VersionLbl.width()/2);
         halfHeight = int(self.VersionLbl.height()/2);
         self.VersionLbl.move(int(self.XSize/2) - int(halfWidth * 1.5), self.Spacing);
@@ -79,10 +91,19 @@ class MainWindow(QWidget):
 
         self.show();
     
-    # def loadGradeCount():
+    # def loadGradeCount(self):
     #     gradeCount: int;
     #     return str(gradeCount);
 
-    # def loadAvgGrade():
+    # def loadAvgGrade(self):
     #     avgGrade: int;
     #     return str(avgGrade);
+
+    # Adding grades to storage
+    def addGrade(self):
+        if(self.AddGradeLine.text() == ""):
+            self.ErrWindow = ErrorWindow("NoInput", self.Font, self.FontSize, self.Spacing);
+            return;
+        else:
+            moduleToAdd: str = self.AddGradeLine.text();
+            self.AddGrdWindow = AddGradeWindow(moduleToAdd);
