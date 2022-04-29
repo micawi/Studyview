@@ -1,3 +1,4 @@
+# Class to store grade values in
 class Grade:
     # Properties
     ModuleName: str;
