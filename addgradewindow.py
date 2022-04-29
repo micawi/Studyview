@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QFileDialog;
 from PyQt5.QtGui import QFont;
 from PyQt5.QtCore import Qt;
-from pickle import load, dump;
+from pickle import dump;
 from gradeaddedmsg import GradeAddedMsg;
+from errorwindow import ErrorWindow;
+from grade import Grade;
 import os;
 
 class AddGradeWindow(QWidget):
@@ -23,6 +25,7 @@ class AddGradeWindow(QWidget):
 
     # Subwindows
     GrdAddedMsg: GradeAddedMsg;
+    ErrWindow: ErrorWindow;
 
     # Init
     def __init__(self, moduleToAdd: str, spacing: int):
@@ -32,6 +35,7 @@ class AddGradeWindow(QWidget):
         self.Font = "Calibri";
         self.FontSize = 10;
         self.Spacing = spacing;
+        self.ModuleToAdd = moduleToAdd;
 
         self.setFixedSize(self.XSize, self.YSize);
         self.setWindowModality(Qt.ApplicationModal);
@@ -73,6 +77,30 @@ class AddGradeWindow(QWidget):
     
     # Adding of grade to specified file/location
     def addGrade(self):
+        gradeName: str = self.ModuleLbl.text();
+        gradeStr: str = self.GradeLine.text();
+        cpStr: str = self.CPLine.text();
+
+        if((gradeStr != "") & (cpStr != "")):
+            grade: float = float(gradeStr);
+            cp: int = int(cpStr);
+            cwd: str = os.getcwd();
+            usrData: str = cwd + "/userdata/";
+            gradePath: str = usrData + gradeName + ".dat";
+
+            if(not os.path.exists(usrData)):
+                os.mkdir(usrData);
+            
+            if(not os.path.exists(gradePath)):
+                with open(gradePath, "wb") as f:
+                    grade = Grade(gradeName, grade, cp);
+                    dump(grade, f);
+            else:
+                self.ErrWindow = ErrorWindow("ModuleExists", self.Font, self.FontSize, self.Spacing);
+                return;
+        else:
+            self.ErrWindow = ErrorWindow("Empty", self.Font, self.FontSize, self.Spacing);
+            return;
 
         self.GrdAddedMsg = GradeAddedMsg(self.Spacing);
         return;
