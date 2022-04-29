@@ -23,8 +23,9 @@ class ErrorWindow(QWidget):
         self.Font = font;
         self.FontSize = fontSize;
         self.Spacing = spacing;
-        self.setWindowModality(Qt.ApplicationModal);
+        
         self.setFixedSize(self.XSize, self.YSize);
+        self.setWindowModality(Qt.ApplicationModal);
         self.setFont(QFont(self.Font, self.FontSize));
         self.setWindowTitle(errType + " Error");
 
@@ -50,7 +51,13 @@ class ErrorWindow(QWidget):
             self.ErrMsgLbl.setText("Enter grade and CP");
             width: int = self.ErrMsgLbl.width();
             height: int = self.ErrMsgLbl.height();
-            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height);       
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height);
+        elif(errType == "NoGrades"):
+            self.ErrMsgLbl.setText("No grades stored");
+            width: int = self.ErrMsgLbl.width();
+            height: int = self.ErrMsgLbl.height();
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height); 
+
         self.show();
     
     # Close window on ok

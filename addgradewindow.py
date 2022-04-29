@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QFileDialog;
 from PyQt5.QtGui import QFont;
 from PyQt5.QtCore import Qt;
-from pickle import dump;
 from gradeaddedmsg import GradeAddedMsg;
 from errorwindow import ErrorWindow;
 from grade import Grade;
-import os;
+import os, pickle;
 
 class AddGradeWindow(QWidget):
     # Properties
@@ -78,6 +77,7 @@ class AddGradeWindow(QWidget):
     # Adding of grade to specified file/location
     def addGrade(self):
         gradeName: str = self.ModuleLbl.text();
+        gradeName = gradeName.replace(": ", "");
         gradeStr: str = self.GradeLine.text();
         cpStr: str = self.CPLine.text();
 
@@ -94,7 +94,7 @@ class AddGradeWindow(QWidget):
             if(not os.path.exists(gradePath)):
                 with open(gradePath, "wb") as f:
                     grade = Grade(gradeName, grade, cp);
-                    dump(grade, f);
+                    pickle.dump(grade, f);
             else:
                 self.ErrWindow = ErrorWindow("ModuleExists", self.Font, self.FontSize, self.Spacing);
                 return;
@@ -103,7 +103,7 @@ class AddGradeWindow(QWidget):
             return;
 
         self.GrdAddedMsg = GradeAddedMsg(self.Spacing);
-        return;
+        self.close();
     
     # Close on cancel
     def cancel(self):

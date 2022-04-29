@@ -5,6 +5,8 @@ from gradeplot import GradePlot;
 from gradewindow import GradeWindow;
 from errorwindow import ErrorWindow;
 from addgradewindow import AddGradeWindow;
+from grade import Grade;
+import os, pickle;
 
 appVersion: str = "v1.0";
 
@@ -15,6 +17,8 @@ class MainWindow(QWidget):
     Spacing: int;
     FontSize: int;
     Font: str;
+
+    GradeList: list;
 
     # Elements
     AddGradeBtn: QPushButton;
@@ -40,9 +44,13 @@ class MainWindow(QWidget):
         self.Spacing = 60;
         self.FontSize = 14;
         self.Font = "Calibri";
+        self.GradeList = [];
+
         self.setFont(QFont(self.Font, self.FontSize));
         self.setWindowTitle("StudyView " + appVersion);
         self.setFixedSize(self.XSize, self.YSize);
+
+        hasGrades: bool = self.getGrades();
 
         self.AddGradeBtn = QPushButton("ADD GRADE", self);
         width: int = int(self.AddGradeBtn.width() * self.FontSize / 10);
@@ -53,6 +61,7 @@ class MainWindow(QWidget):
         self.ShowGradeBtn = QPushButton("SHOW GRADES", self);
         halfHeight = int(self.ShowGradeBtn.height()/2);
         self.ShowGradeBtn.move(self.XSize - width, int(self.YSize/2) - halfHeight + self.Spacing);
+        self.ShowGradeBtn.clicked.connect(self.showGrades);
 
         self.PlotGradeBtn = QPushButton("PLOT GRADES", self);
         halfHeight = int(self.PlotGradeBtn.height()/2);
@@ -72,13 +81,21 @@ class MainWindow(QWidget):
         self.AddGradeLbl.move(int(self.Spacing/3), int(self.YSize/3) - halfHeight);
 
         self.GradeCountLbl = QLabel(self);
-        self.GradeCountLbl.setText("No. of grades: " + "Placeholder");
-        # self.GradeCountLbl.setText("No. of grades: " + self.loadGradeCount());
+        self.GradeCountLbl.setText("No. of grades: " + "None");
+        if(hasGrades):
+            boldFont = QFont(self.Font, self.FontSize);
+            boldFont.setBold(True);
+            self.GradeCountLbl.setFont(boldFont);
+            self.GradeCountLbl.setText("No. of grades: " + self.loadGradeCount());
         self.GradeCountLbl.move(int(self.Spacing/3), int(self.YSize/2) - halfHeight + self.Spacing);
 
         self.AvgGradeLbl = QLabel(self);
-        self.AvgGradeLbl.setText("Average grade: " + "Placeholder");
-        # self.AvgGradeLbl.setText("Average grade: " + self.loadAvgGrade());
+        self.AvgGradeLbl.setText("Average grade: " + "None");
+        if(hasGrades):
+            boldFont = QFont(self.Font, self.FontSize);
+            boldFont.setBold(True);
+            self.AvgGradeLbl.setFont(boldFont);
+            self.AvgGradeLbl.setText("Average grade: " + self.loadAvgGrade());
         self.AvgGradeLbl.move(int(self.Spacing/3), int(self.YSize/2) - halfHeight + self.Spacing * 2);
 
         self.AddGradeLine = QLineEdit(self);
@@ -91,14 +108,6 @@ class MainWindow(QWidget):
 
         self.show();
     
-    # def loadGradeCount(self):
-    #     gradeCount: int;
-    #     return str(gradeCount);
-
-    # def loadAvgGrade(self):
-    #     avgGrade: int;
-    #     return str(avgGrade);
-
     # Adding grades to storage
     def addGrade(self):
         if(self.AddGradeLine.text() == ""):
@@ -107,3 +116,40 @@ class MainWindow(QWidget):
         else:
             moduleToAdd: str = self.AddGradeLine.text();
             self.AddGrdWindow = AddGradeWindow(moduleToAdd, self.Spacing);
+    
+    def showGrades(self):
+        self.GrdWindow = GradeWindow(self.Font, self.FontSize, self.Spacing);
+
+    def getGrades(self) -> bool:
+        cwd: str = os.getcwd();
+        usrData: str = cwd + "/userdata/";
+        allFiles: list = os.listdir(usrData);
+        
+        if(allFiles != []):
+            fileName: str;
+            for fileName in allFiles:
+                currFile: str = usrData + fileName;
+                with open(currFile, "rb") as f:
+                    currGrade: Grade = pickle.load(f);
+                    self.GradeList.append(currGrade);
+        
+        return True;
+
+    # Get no. of grades
+    def loadGradeCount(self) -> str:
+        gradeCount: int = len(self.GradeList);
+        return str(gradeCount);
+
+    # Get average grade
+    def loadAvgGrade(self) -> str:
+        gradeSum: float = 0;
+        divisor: int = int(self.loadGradeCount());
+        grade: Grade;
+
+        # Calculation of average grade
+        for grade in self.GradeList:
+            gradeSum += grade.Grade;
+        avgGrade: float = gradeSum/divisor;
+        avgGrade = round(avgGrade, 2);
+
+        return str(avgGrade);
