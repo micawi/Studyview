@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QPushButton, QFrame, QLineEdit;
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QPushButton, QFrame, QLineEdit;
 from PyQt5.QtGui import QFont;
 from PyQt5.QtCore import Qt;
 from gradeplot import GradePlot;
@@ -6,7 +6,8 @@ from gradewindow import GradeWindow;
 from errorwindow import ErrorWindow;
 from addgradewindow import AddGradeWindow;
 from grade import Grade;
-import os, pickle;
+from time import sleep;
+import os, pickle, sys;
 
 appVersion: str = "v1.0";
 
@@ -19,6 +20,8 @@ class MainWindow(QWidget):
     Font: str;
 
     GradeList: list;
+
+    App: QApplication;
 
     # Elements
     AddGradeBtn: QPushButton;
@@ -37,7 +40,7 @@ class MainWindow(QWidget):
     PlotWindow: GradePlot;
     
     # Init
-    def __init__(self):
+    def __init__(self, app: QApplication):
         super().__init__();
         self.XSize = 500;
         self.YSize = self.XSize;
@@ -45,6 +48,7 @@ class MainWindow(QWidget):
         self.FontSize = 14;
         self.Font = "Calibri";
         self.GradeList = [];
+        self.App = app;
 
         self.setFont(QFont(self.Font, self.FontSize));
         self.setWindowTitle("StudyView " + appVersion);
@@ -116,11 +120,13 @@ class MainWindow(QWidget):
         else:
             moduleToAdd: str = self.AddGradeLine.text();
             self.AddGrdWindow = AddGradeWindow(moduleToAdd, self.Spacing);
+            self.AddGrdWindow.updateSignal.connect(self.gradeUpdate);
     
     def showGrades(self):
         self.GrdWindow = GradeWindow(self.Font, self.FontSize, self.Spacing);
 
     def getGrades(self) -> bool:
+        self.GradeList = [];
         cwd: str = os.getcwd();
         usrData: str = cwd + "/userdata/";
         allFiles: list = os.listdir(usrData);
@@ -132,6 +138,8 @@ class MainWindow(QWidget):
                 with open(currFile, "rb") as f:
                     currGrade: Grade = pickle.load(f);
                     self.GradeList.append(currGrade);
+        else:
+            return False;
         
         return True;
 
@@ -153,3 +161,13 @@ class MainWindow(QWidget):
         avgGrade = round(avgGrade, 2);
 
         return str(avgGrade);
+    
+    # Update grades on AddGrdWindow close
+    def gradeUpdate(self):
+        plchld0: bool = self.getGrades();
+        boldFont = QFont(self.Font, self.FontSize);
+        boldFont.setBold(True);
+        self.GradeCountLbl.setFont(boldFont);
+        self.GradeCountLbl.setText("No. of grades: " + self.loadGradeCount());
+        self.AvgGradeLbl.setFont(boldFont);
+        self.AvgGradeLbl.setText("Average grade: " + self.loadAvgGrade());

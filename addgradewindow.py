@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QFileDialog;
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QCheckBox;
 from PyQt5.QtGui import QFont;
-from PyQt5.QtCore import Qt;
+from PyQt5.QtCore import Qt, pyqtSignal;
 from gradeaddedmsg import GradeAddedMsg;
 from errorwindow import ErrorWindow;
 from grade import Grade;
-import os, pickle;
+import os, pickle, datetime;
 
 class AddGradeWindow(QWidget):
     # Properties
@@ -14,6 +14,9 @@ class AddGradeWindow(QWidget):
     FontSize: int;
     Font: str;
 
+    # Signal
+    updateSignal = pyqtSignal();
+
     # Elements
     ModuleLbl: QLabel;
     GradeLine: QLineEdit;
@@ -21,6 +24,10 @@ class AddGradeWindow(QWidget):
     CPLine: QLineEdit;
     AddGrdBtn: QPushButton;
     CancelBtn: QPushButton;
+    DateLbl: QLabel;
+    DateLine: QLineEdit;
+    TodayLbl : QLabel;
+    TodayCheck: QCheckBox;
 
     # Subwindows
     GrdAddedMsg: GradeAddedMsg;
@@ -62,6 +69,26 @@ class AddGradeWindow(QWidget):
         self.CPLine.setFixedWidth(25);
         self.CPLine.move(int(self.Spacing/3) * 2 + width + width1, int(self.Spacing/2));
 
+        self.DateLbl = QLabel(self);
+        self.DateLbl.setText("Date: ");
+        self.DateLbl.move(int(self.Spacing/2), int(self.Spacing));
+
+        self.DateLine = QLineEdit(self);
+        self.DateLine.setPlaceholderText("dd.mm.yy");
+        self.DateLine.setEnabled(False);
+        self.DateLine.setMaxLength(8);
+        self.DateLine.setFixedWidth(int(self.Spacing * 1.5));
+        self.DateLine.move(int(self.Spacing * 1.05), int(self.Spacing));
+
+        self.TodayLbl = QLabel(self);
+        self.TodayLbl.setText("Today: ");
+        self.TodayLbl.move(int(self.Spacing * 3), int(self.Spacing));
+
+        self.TodayCheck = QCheckBox(self);
+        self.TodayCheck.setChecked(True);
+        self.TodayCheck.move(int(self.Spacing/2) + int(width * 1.9), int(self.Spacing));
+        self.TodayCheck.toggled.connect(self.dateCheck);
+
         self.AddGrdBtn = QPushButton("ADD GRADE", self);
         self.AddGrdBtn.move(int(self.Spacing/2), self.Spacing * 2);
         self.AddGrdBtn.setFixedWidth(self.XSize - self.Spacing);
@@ -74,6 +101,14 @@ class AddGradeWindow(QWidget):
 
         self.show();
     
+    # Make dateline editable/uneditable
+    def dateCheck(self):
+        if(self.TodayCheck.isChecked()):
+            self.DateLine.setText("");
+            self.DateLine.setEnabled(False);
+        else:
+            self.DateLine.setEnabled(True);                
+    
     # Adding of grade to specified file/location
     def addGrade(self):
         gradeName: str = self.ModuleLbl.text();
@@ -82,8 +117,17 @@ class AddGradeWindow(QWidget):
         cpStr: str = self.CPLine.text();
 
         if((gradeStr != "") & (cpStr != "")):
-            grade: float = float(gradeStr);
-            cp: int = int(cpStr);
+            try:
+                grade: float = float(gradeStr);
+                cp: int = int(cpStr);
+                if(not self.TodayCheck.isChecked()):
+                    dateText: str = self.DateLine.text().replace(".", "/");
+                    date: datetime.date = datetime.datetime.strptime(dateText, "%d/%m/%y");
+                else:
+                    date: datetime = datetime.date.today();
+            except:
+                self.ErrWindow = ErrorWindow("WrongInput", self.Font, 14, self.Spacing);
+                return;
             cwd: str = os.getcwd();
             usrData: str = cwd + "/userdata/";
             gradePath: str = usrData + gradeName + ".dat";
@@ -93,17 +137,21 @@ class AddGradeWindow(QWidget):
             
             if(not os.path.exists(gradePath)):
                 with open(gradePath, "wb") as f:
-                    grade = Grade(gradeName, grade, cp);
+                    grade = Grade(gradeName, grade, cp, date);
                     pickle.dump(grade, f);
             else:
-                self.ErrWindow = ErrorWindow("ModuleExists", self.Font, self.FontSize, self.Spacing);
+                self.ErrWindow = ErrorWindow("ModuleExists", self.Font, 14, self.Spacing);
                 return;
         else:
-            self.ErrWindow = ErrorWindow("Empty", self.Font, self.FontSize, self.Spacing);
+            self.ErrWindow = ErrorWindow("Empty", self.Font, 14, self.Spacing);
             return;
 
         self.GrdAddedMsg = GradeAddedMsg(self.Spacing);
         self.close();
+    
+    def closeEvent(self, event):
+        self.updateSignal.emit();
+
     
     # Close on cancel
     def cancel(self):

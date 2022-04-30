@@ -41,22 +41,27 @@ class ErrorWindow(QWidget):
             self.ErrMsgLbl.setText("Enter a module name");
             width: int = self.ErrMsgLbl.width();
             height: int = self.ErrMsgLbl.height();
-            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height);  
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.4), int(self.YSize/2) - height);
+        elif(errType == "WrongInput"):
+            self.ErrMsgLbl.setText("Invalid input given");
+            width: int = self.ErrMsgLbl.width();
+            height: int = self.ErrMsgLbl.height();
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.4), int(self.YSize/2) - height);            
         elif(errType == "ModuleExists"):
             self.ErrMsgLbl.setText("Module already exists");
             width: int = self.ErrMsgLbl.width();
             height: int = self.ErrMsgLbl.height();
-            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height);
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.4), int(self.YSize/2) - height);
         elif(errType == "Empty"):
             self.ErrMsgLbl.setText("Enter grade and CP");
             width: int = self.ErrMsgLbl.width();
             height: int = self.ErrMsgLbl.height();
-            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height);
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.4), int(self.YSize/2) - height);
         elif(errType == "NoGrades"):
             self.ErrMsgLbl.setText("No grades stored");
             width: int = self.ErrMsgLbl.width();
             height: int = self.ErrMsgLbl.height();
-            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.3), int(self.YSize/2) - height); 
+            self.ErrMsgLbl.move(int(self.XSize/2) - int(width/1.55), int(self.YSize/2) - height); 
 
         self.show();
     
