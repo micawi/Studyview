@@ -1,2 +1,5 @@
 __pycache__/
 userdata/
+build/
+dist/
+main.spec
