@@ -70,6 +70,7 @@ class MainWindow(QWidget):
         self.PlotGradeBtn = QPushButton("PLOT GRADES", self);
         halfHeight = int(self.PlotGradeBtn.height()/2);
         self.PlotGradeBtn.move(self.XSize - width, int(self.YSize/2) - halfHeight + self.Spacing * 2);
+        self.PlotGradeBtn.clicked.connect(self.plotData);
 
         self.VersionLbl = QLabel(self);
         self.VersionLbl.setText("StudyView " + appVersion);
@@ -171,3 +172,7 @@ class MainWindow(QWidget):
         self.GradeCountLbl.setText("No. of grades: " + self.loadGradeCount());
         self.AvgGradeLbl.setFont(boldFont);
         self.AvgGradeLbl.setText("Average grade: " + self.loadAvgGrade());
+    
+    # Plot grade data
+    def plotData(self):
+        self.PlotWindow = GradePlot(self.GradeList);

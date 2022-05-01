@@ -80,6 +80,8 @@ class GradeWindow(QWidget):
             currCPValLbl: QLabel;
             currDateValLbl: QLabel;
 
+            self.GradeList.sort(key=lambda x: x.Grade, reverse=False);
+
             for grade in self.GradeList:
                 currNameValLbl = QLabel(self);
                 currNameValLbl.setText(grade.ModuleName);
@@ -93,8 +95,7 @@ class GradeWindow(QWidget):
                 self.NameValList.append(currNameValLbl);
                 self.GradeValList.append(currGradeValLbl);
                 self.CPValList.append(currCPValLbl);
-                self.DateValList.append(currDateValLbl);
-                
+                self.DateValList.append(currDateValLbl);               
 
             for i in range(len(self.GradeList)):
                 self.YSize = self.Spacing * 2 + int(self.Spacing/2) * (i + 1);
