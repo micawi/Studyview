@@ -29,17 +29,18 @@ class GradePlot:
         
         currAvg: int;
         counter: int = 1;
-        gradeSorted = sorted(gradeList, reverse=False, key=lambda x: x.GradeDate);
+        gradeSorted = sorted(gradeList, reverse=False, key=lambda x: x.GradeDate); # Sort grades with date
         for grade in gradeSorted:
             self.XValues2.append(grade.GradeDate);
             if(counter != 1):
-                currAvg = (currAvg * (counter - 1) + grade.Grade)/counter;
+                currAvg = (currAvg * (counter - 1) + grade.Grade)/counter; # Calculate new average from old average
             else:
                 currAvg = grade.Grade;
             self.YValues2.append(currAvg);
             counter += 1;
         
         plt.plot(self.XValues1, self.YValues1, "rs", self.XValues2, self.YValues2, "b--");
+        plt.legend(labels=["Grades", "Total Avg. Grade"], fontsize=8);
         plt.title("Grade plot");
         plt.ylabel("Grade");
         plt.xlabel("Date");
