@@ -130,6 +130,8 @@ class MainWindow(QWidget):
         self.GradeList = [];
         cwd: str = os.getcwd();
         usrData: str = cwd + "\\userdata\\";
+        if(not os.path.exists(usrData)):
+            os.mkdir(usrData);
         allFiles: list = os.listdir(usrData);
         
         if(allFiles != []):
