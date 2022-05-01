@@ -129,7 +129,7 @@ class MainWindow(QWidget):
     def getGrades(self) -> bool:
         self.GradeList = [];
         cwd: str = os.getcwd();
-        usrData: str = cwd + "/userdata/";
+        usrData: str = cwd + "\\userdata\\";
         allFiles: list = os.listdir(usrData);
         
         if(allFiles != []):
